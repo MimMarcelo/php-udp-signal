@@ -1,47 +1,26 @@
 <?php
-/***
- * Referências 
- * https://www.binarytides.com/udp-socket-programming-in-php/
- */
-print_r($_GET);
 
-$lights = 8;
-for($count = 0; $count < $lights; $count++){
-    $value = filter_var($_GET["lampada"][$count], FILTER_SANITIZE_STRING);
-    echo "<br>Lâmpada " . ($count+1) . ": $value";
-}
-//Reduce errors
-error_reporting(~E_WARNING);
+require "../model/UDPSignal.php"; // Importação da classe de conexão UDP
 
-$server = '192.168.4.1';//'127.0.0.1';
-$port = 555;
+// Obtém a instância da classe de conexão UDP
+$udpSignal = UDPSignal::getInstance(); 
 
-if(!($sock = socket_create(AF_INET, SOCK_DGRAM, 0)))
-{
-	$errorcode = socket_last_error();
-    $errormsg = socket_strerror($errorcode);
-    
-    die("Couldn't create socket: [$errorcode] $errormsg \n");
-}
+// Define o IP e a porta do serviço UDP
+$udpSignal->setServer('127.0.0.1', 9999);
 
-echo "Socket created \n";
-
+// Constroi a mensagem a ser enviada a partir dos dados recebidos pelo formulário
+$input = "";
 $text = $_GET["lampada"];
 if (filter_var($text, FILTER_VALIDATE_INT) === 0 || !filter_var($text, FILTER_VALIDATE_INT) === false) {
-    $input = chr($text);
+    $input .= chr($text);
 }
 $int = $_GET["valor"];
 if (filter_var($int, FILTER_VALIDATE_INT) === 0 || !filter_var($int, FILTER_VALIDATE_INT) === false) {
     $input .= chr($int);
 }
 
+// Envia a mensagem
+$udpSignal->sendData($input);
 
-//Send the message to the server
-if( ! socket_sendto($sock, $input , strlen($input) , 0 , $server , $port))
-{
-    $errorcode = socket_last_error();
-    $errormsg = socket_strerror($errorcode);
-    
-    die("Could not send data: [$errorcode] $errormsg \n");
-}
+// Redireciona para o formulário
 header("Location: ../");

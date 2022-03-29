@@ -3,12 +3,13 @@
  * Referências
  * https://www.binarytides.com/udp-socket-programming-in-php/
  */
-//Reduce errors
+// Reduz a quantidade de mensagens de eventuais erros
 error_reporting(~E_WARNING);
 
-//Create a UDP socket
-if(!($sock = socket_create(AF_INET, SOCK_DGRAM, 0)))
+// Cria o socket UDP
+if(!($socket = socket_create(AF_INET, SOCK_DGRAM, 0)))
 {
+	// Se o socket não foi criado
 	$errorcode = socket_last_error();
     $errormsg = socket_strerror($errorcode);
     
@@ -17,9 +18,10 @@ if(!($sock = socket_create(AF_INET, SOCK_DGRAM, 0)))
 
 echo "Socket created \n";
 
-// Bind the source address
-if( !socket_bind($sock, "0.0.0.0" , 9999) )
+// Ativa o soket
+if( !socket_bind($socket, "0.0.0.0" , 9999) )
 {
+	// Se o socket não foi ativado
 	$errorcode = socket_last_error();
     $errormsg = socket_strerror($errorcode);
     
@@ -29,16 +31,14 @@ if( !socket_bind($sock, "0.0.0.0" , 9999) )
 echo "Socket bind OK \n";
 
 echo "Waiting for data ... \n";
-//Do some communication, this loop can handle multiple clients
+
+// Aguarda pelo recebimento de mensagens
 while(true)
 {
-	
-	//Receive some data
-	$r = socket_recvfrom($sock, $buf, 512, 0, $remote_ip, $remote_port);
+	// Recebe dados
+	$r = socket_recvfrom($socket, $buf, 512, 0, $remote_ip, $remote_port);
 	echo $buf . "\n";
-	
-	//Send back the data to the client
-	//socket_sendto($sock, "OK " . $buf , 100 , 0 , $remote_ip , $remote_port);
 }
 
-socket_close($sock);
+// Encerra o socket
+socket_close($socket);
